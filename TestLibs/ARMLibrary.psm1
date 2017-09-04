@@ -406,7 +406,12 @@ Function RemoveResidualResourceGroupVHDs($ResourceGroup,$storageAccount)
     
     $azureStorage = $storageAccount
     LogMsg "Removing residual VHDs of $ResourceGroup from $azureStorage..."
-    $storageContext = (Get-AzureRmStorageAccount | Where-Object{$_.StorageAccountName -match $azureStorage}).Context
+    
+    #Fix Get-AzureRmStorageAccount which is hitting server error
+    #$storageContext = (Get-AzureRmStorageAccount | Where-Object{$_.StorageAccountName -match $azureStorage}).Context
+    $StorageAccountResourceGroup = "Default-Storage-"+$location
+    $storageContext = (Get-azurermstorageaccount -ResourceGroupName $StorageAccountResourceGroup -Name $azureStorage).Context
+    
     $storageBlob = Get-AzureStorageBlob -Context $storageContext -Container "vhds"
     $vhdList = $storageBlob | Where-Object{$_.Name -match "$ResourceGroup"}
     if ($vhdList) 
@@ -518,8 +523,14 @@ if ( $NewARMStorageAccountType )
 else
 {
     LogMsg "Getting Existing Storage Account : $StorageAccountName details ..."
-    $StorageAccountType = (Get-AzureRmStorageAccount | where {$_.StorageAccountName -eq $StorageAccountName}).Sku.Tier.ToString()
-    $StorageAccountRG = (Get-AzureRmStorageAccount | where {$_.StorageAccountName -eq $StorageAccountName}).ResourceGroupName.ToString()
+    
+    #Fix Get-AzureRmStorageAccount which is hitting server error
+    #$StorageAccountType = (Get-AzureRmStorageAccount | where {$_.StorageAccountName -eq $StorageAccountName}).Sku.Tier.ToString()
+    #$StorageAccountRG = (Get-AzureRmStorageAccount | where {$_.StorageAccountName -eq $StorageAccountName}).ResourceGroupName.ToString()
+    $StorageAccountResourceGroup = "Default-Storage-"+$location
+    $StorageAccountType = (Get-azurermstorageaccount -ResourceGroupName $StorageAccountResourceGroup -Name $StorageAccountName).Sku.Tier.ToString()
+    $StorageAccountRG = $StorageAccountResourceGroup
+    
     if($StorageAccountType -match 'Premium')
     {
         $StorageAccountType = "Premium_LRS"
