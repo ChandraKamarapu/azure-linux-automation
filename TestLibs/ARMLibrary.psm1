@@ -428,8 +428,13 @@ Function DeleteResourceGroup([string]$RGName, [switch]$KeepDisks)
                 Remove-AzureRmResourceGroup -Name $RGName -Verbose -Force
                 
                 $azureStorage = $storageAccount
-                $storageContext = (Get-AzureRmStorageAccount | Where-Object{$_.StorageAccountName -match $azureStorage}).Context
-                $storageBlob = Get-AzureStorageBlob -Context $storageContext -Container "vhds"
+		
+		#Fix server hitting Get-AzureRmStorageAccount : Operation 'Microsoft.Storage/storageAccounts/read' failed as server encountered too many requests. Please try after '17' seconds.
+                #$storageContext = (Get-AzureRmStorageAccount | Where-Object{$_.StorageAccountName -match $azureStorage}).Context
+                $StorageAccountResourceGroup = "Default-Storage-"+$location
+		$storageContext = (Get-AzureRMStorageAccount -ResourceGroupName $StorageAccountResourceGroup -Name $azureStorage).Context
+				
+		$storageBlob = Get-AzureStorageBlob -Context $storageContext -Container "vhds"
                 $vhdList = $storageBlob | Where-Object{$_.Name -match "$RGName"}
                 if ($vhdList) 
                 {
@@ -477,7 +482,12 @@ Function RemoveResidualResourceGroupVHDs($ResourceGroup,$storageAccount)
     
     $azureStorage = $storageAccount
     LogMsg "Removing residual VHDs of $ResourceGroup from $azureStorage..."
-    $storageContext = (Get-AzureRmStorageAccount | Where-Object{$_.StorageAccountName -match $azureStorage}).Context
+    
+    #Fix server hitting Get-AzureRmStorageAccount : Operation 'Microsoft.Storage/storageAccounts/read' failed as server encountered too many requests. Please try after '17' seconds.
+    #$storageContext = (Get-AzureRmStorageAccount | Where-Object{$_.StorageAccountName -match $azureStorage}).Context
+    $StorageAccountResourceGroup = "Default-Storage-"+$location
+    $storageContext = (Get-AzureRMStorageAccount -ResourceGroupName $StorageAccountResourceGroup -Name $azureStorage).Context
+    
     $storageBlob = Get-AzureStorageBlob -Context $storageContext -Container "vhds"
     $vhdList = $storageBlob | Where-Object{$_.Name -match "$ResourceGroup"}
     if ($vhdList) 
@@ -597,10 +607,16 @@ else
         {
             $retryCount += 1
             LogMsg "[Attempt $retryCount/$maxRetryCount] : Getting Existing Storage Account : $StorageAccountName details ..."
-            $GetAzureRMStorageAccount = Get-AzureRmStorageAccount
-            $StorageAccountType = ($GetAzureRMStorageAccount | where {$_.StorageAccountName -eq $StorageAccountName}).Sku.Tier.ToString()
-            $StorageAccountRG = ($GetAzureRMStorageAccount | where {$_.StorageAccountName -eq $StorageAccountName}).ResourceGroupName.ToString()
-            $saInfoCollected = $true
+            
+	    #Fix server hitting Get-AzureRmStorageAccount : Operation 'Microsoft.Storage/storageAccounts/read' failed as server encountered too many requests. Please try after '17' seconds.
+	    #$GetAzureRMStorageAccount = Get-AzureRmStorageAccount
+            #$StorageAccountType = ($GetAzureRMStorageAccount | where {$_.StorageAccountName -eq $StorageAccountName}).Sku.Tier.ToString()
+            #$StorageAccountRG = ($GetAzureRMStorageAccount | where {$_.StorageAccountName -eq $StorageAccountName}).ResourceGroupName.ToString()
+            $StorageAccountResourceGroup = "Default-Storage-"+$location
+	    $StorageAccountType = (Get-AzureRMStorageAccount -ResourceGroupName $StorageAccountResourceGroup -Name $StorageAccountName).Sku.Tier.ToString()
+	    $StorageAccountRG = $StorageAccountResourceGroup
+	    
+	    $saInfoCollected = $true
             if($StorageAccountType -match 'Premium')
             {
                 $StorageAccountType = "Premium_LRS"
