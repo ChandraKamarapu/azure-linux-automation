@@ -17,7 +17,12 @@ else
 	if ( $UseAzureResourceManager )
 	{
 		$StorAccount = $xmlConfig.config.Azure.General.ARMStorageAccount
-		$AccountDetail =  Get-AzureRmStorageAccount | where {$_.StorageAccountName -eq $StorAccount}
+		
+		#Fix server hitting Get-AzureRmStorageAccount : Operation 'Microsoft.Storage/storageAccounts/read' failed as server encountered too many requests. Please try after '17' seconds.
+		#$AccountDetail =  Get-AzureRmStorageAccount | where {$_.StorageAccountName -eq $StorAccount}
+		$StorageAccountResourceGroup = "Default-Storage-"+$location.Replace('"',"").Replace(' ',"").ToLower()
+		$AccountDetail = Get-AzureRMStorageAccount -ResourceGroupName $StorageAccountResourceGroup -Name $StorAccount
+		
 		$Location = $AccountDetail.PrimaryLocation
 		$AccountType = $AccountDetail.Sku.Tier.ToString()
 		$SupportSizes = (Get-AzureRmVMSize -Location $location).Name
