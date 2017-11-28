@@ -43,7 +43,7 @@ echo "build not is started.. " > $code_path/build.log
 cd $code_path
 
 updaterepos
-install_package git-core sysstat gcc make libssl-dev kernel-package
+install_package git-core sysstat gcc make libssl-dev kernel-package libelf-dev
 LogMsg "linux next git clone is RUNNING.."
 git clone git://git.kernel.org/pub/scm/linux/kernel/git/next/linux-next.git  
 if [ $? -ne 0 ]; then
