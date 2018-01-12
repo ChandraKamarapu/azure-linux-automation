@@ -7549,6 +7549,19 @@
 				<param></param>
 			</TestParameters>
 			<Priority>P0</Priority>
+		</test>
+		<test>
+			<testName>RESTART-VM</testName>
+			<testScript></testScript>
+			<testScriptps1>PROVISION-RESTART-VM.ps1</testScriptps1>
+			<setupType>D1V2</setupType>
+			<SupportedExecutionModes>AzureResourceManager</SupportedExecutionModes>
+			<SubtestValues></SubtestValues>
+			<files>.\remote-scripts\azuremodules.sh</files>
+			<TestParameters>
+				<param></param>
+			</TestParameters>
+			<Priority>P0</Priority>
 		</test>			
 	</testsDefinition>
 
@@ -8654,6 +8667,12 @@
 			<cycleName>CAPTURE-VHD-LATEST</cycleName>
 			<test>
 				<Name>ICA-BUILD-CUSTOM-VM-CAPTURE-VHD-ARM-LATEST</Name>
+			</test>
+		</Cycle>
+		<Cycle>
+			<cycleName>CUSTOM-PROVISION</cycleName>
+			<test>
+				<Name>RESTART-VM</Name>
 			</test>
 		</Cycle>
 	</testCycles>
