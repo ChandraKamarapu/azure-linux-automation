@@ -105,7 +105,7 @@ Function InstallLIS($VMObject, $PrevTestStatus, $metaData, $ISAbortIgnore="No")
         }
         else
         {
-			if($installLISConsoleOutput -imatch "warning")
+			if(($installLISConsoleOutput -imatch "warning") -and ($installLISConsoleOutput -inotmatch "Linux Integration Services for Hyper-V has been installed"))
 			{
 				LogErr "LIS install is failed due to found warnings."
 				$ErrorWarningStatus = Get-Content -Path "$($VMObject.logDir)\installLISConsoleOutput.txt" | Select-String "warning"
@@ -223,10 +223,14 @@ Function UpgradeLIS($VMObject, $PrevTestStatus, $metaData)
         else
         {
             #Verification of Errors & Warnings in LIS installation process
-			if($upgradelLISConsoleOutput -imatch "error" -or $upgradelLISConsoleOutput -imatch "warning" -or $upgradelLISConsoleOutput -imatch "abort")
+			if($upgradelLISConsoleOutput -imatch "error" -or $upgradelLISConsoleOutput -imatch "abort")
 			{
 				LogErr "Latest LIS install is failed due found errors or warnings or aborted."
 				$ExitCode = "FAIL"
+			}
+			elseif (($upgradelLISConsoleOutput -imatch "warning") -and ($upgradelLISConsoleOutput -inotmatch "Linux Integration Services for Hyper-V has been Upgraded")) {
+				LogErr "Latest LIS install is failed due to warnings."
+				$ExitCode = "FAIL"	
 			}
 			else
 			{
