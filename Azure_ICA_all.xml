@@ -7680,6 +7680,9 @@
 			<test>
 				<Name>BVT-VERIFY-SHUTDOWN</Name>
 			</test>
+			<test><Name>BVT-HOT-VM-RESIZE</Name></test>
+			<test><Name>BVT-HOT-ADD-DISK-PARALLEL</Name></test>
+			<test><Name>BVT-HOT-ADD-DISK-SERIAL</Name></test>
 			<!-- Do not delete BVT-DELETE-VHD test. This should always be the last test -->
 			<test>
 				<Name>BVT-DELETE-VHD</Name>
